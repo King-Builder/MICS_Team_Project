@@ -3,28 +3,34 @@ import '../style/style.css'
 import { Link } from "react-router-dom";
 import globe from '../style/globe.png';
 import lines from '../style/lines.png';
+import { useState } from 'react';
 
 const Home = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <>
-      <div className="navigator">
-        <div className="logo">
-          <a href="index.html" className="no-underline">
-            <h1>MICS</h1>
-          </a>
-        </div>
-
-        <div className="components">
-          <div><a href="#home">Home</a></div>
-          <div><a href="#about-us">About Us</a></div>
-          <div><a href="#pricing">Pricing</a></div>
-          <div><a href="#services">Services</a></div>
-        </div>
-
-        <div className="login-button">
-            <Link to="/login" className="no-underline">Login</Link>
-        </div>
+       <div className="navigator">
+      <div className="logo">
+        <a href="#home" className="no-underline">
+          <h1>MICS</h1>
+        </a>
       </div>
+
+      <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+        ☰
+      </div>
+
+      <div className={`components ${menuOpen ? 'open' : ''}`}>
+        <div><a href="#home">Home</a></div>
+        <div><a href="#about-us">About Us</a></div>
+        <div><a href="#pricing">Pricing</a></div>
+        <div><a href="#services">Services</a></div>
+      </div>
+
+      <div className={`login-button ${menuOpen ? 'open' : ''}`}>
+        <Link to="/login" className="no-underline">Login</Link>
+      </div>
+    </div>
 
       <div className="home-container" id="home">
         <div className="home-center">
@@ -115,7 +121,7 @@ const Home = () => {
                 <li key={i}>{f}</li>
               ))}
             </ul>
-            <button className="pricing-button get-started">Get Started</button>
+            <button className="pricing-button get-started"><a href="#services">Get Started</a></button>
           </div>
         ))}
       </div>

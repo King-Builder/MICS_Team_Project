@@ -392,67 +392,68 @@ function handleSelectCustomer(customer) {
 
       {/* Update Modal */}
       {isUpdateOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Update Customer</h2>
-            <form onSubmit={handleUpdate}>
-              <input
-                type="text"
-                name="name"
-                placeholder="Customer Name"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="text"
-                name="phone"
-                placeholder="Phone Number"
-                value={form.phone}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="text"
-                name="address"
-                placeholder="Address"
-                value={form.address}
-                onChange={handleChange}
-                required
-              />
-              <select name="plan_id" value={form.plan_id} onChange={handleChange} required>
-                <option value="">Select a plan</option>
-                <option value="1">Starter Plan</option>
-                <option value="2">Family Plan</option>
-                <option value="3">Pro Plan</option>
-                <option value="4">Elite Plan</option>
-              </select>
-              <select name="status" value={form.status} onChange={handleChange} required>
-                <option value="">Select status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <div className="modal-buttons">
-                <button type="button" onClick={closeUpdateModal} className="cancel-btn">
-                  Cancel
-                </button>
-                <button type="submit" className="update-btn">
-                  Update
-                </button>
-              </div>
-            </form>
-          </div>
-          
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h2>Update Customer</h2>
+      <form onSubmit={handleUpdate}>
+        <label>Name</label>
+        <input
+          type="text"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          disabled
+        />
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+          disabled
+        />
+        <label>Phone</label>
+        <input
+          type="text"
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          required
+        />
+        <label>Address</label>
+        <input
+          type="text"
+          name="address"
+          value={form.address}
+          onChange={handleChange}
+          required
+        />
+        <label>Plan</label>
+        <select name="plan_id" value={form.plan_id} onChange={handleChange} required>
+          <option value="">Select a plan</option>
+          <option value="1">Starter Plan</option>
+          <option value="2">Family Plan</option>
+          <option value="3">Pro Plan</option>
+          <option value="4">Elite Plan</option>
+        </select>
+        <label>Status</label>
+        <select name="status" value={form.status} onChange={handleChange} required>
+          <option value="">Select status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <div className="modal-buttons">
+          <button type="button" onClick={closeUpdateModal} className="cancel-btn">
+            Cancel
+          </button>
+          <button type="submit" className="update-btn">
+            Update
+          </button>
         </div>
-      )}
+      </form>
+    </div>
+  </div>
+)}
 
       
 

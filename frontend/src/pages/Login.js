@@ -27,7 +27,7 @@ const Login = () => {
 
         <label htmlFor="password">Password</label>
         <input
-          type="text"
+          type="password"
           id="password"
           placeholder="••••••••"
           value={password}

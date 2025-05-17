@@ -3,10 +3,11 @@ import '../style/style.css'
 import { Link } from "react-router-dom";
 import globe from '../style/globe.png';
 import lines from '../style/lines.png';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  
   return (
     <>
        <div className="navigator">

@@ -132,6 +132,29 @@ app.post('/customers/monthly-billing', async (req, res) => {
   }
 });
 
+app.get('/customers/payments', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        payments.id,
+        payments.customer_id,
+        customers.name AS customer_name,
+        payments.amount,
+        payments.payment_date,
+        payments.method,
+        payments.note
+      FROM payments
+      INNER JOIN customers ON payments.customer_id = customers.id
+      ORDER BY payments.payment_date DESC
+    `);
+
+    res.json({ success: true, payments: result.rows });
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch payments' });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

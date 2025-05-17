@@ -206,6 +206,34 @@ function handleSelectCustomer(customer) {
 
 
 
+ const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+    useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const response = await fetch('https://mics-backend.onrender.com/customers/payments');
+        const data = await response.json();
+
+        if (data.success) {
+          setPayments(data.payments);
+        } else {
+          setError('Failed to fetch payments');
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Server error while fetching payments');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, []);
+
+
+
 
   return (
 
@@ -386,6 +414,48 @@ function handleSelectCustomer(customer) {
   >
     Apply Monthly Billing
   </button>
+
+
+
+
+    <div className="payments-section">
+      <h2 className="payments-title">Customer Payments</h2>
+
+      {loading ? (
+        <p className="payments-loading">Loading payments...</p>
+      ) : error ? (
+        <p className="payments-error">{error}</p>
+      ) : payments.length === 0 ? (
+        <p className="payments-empty">No payments found.</p>
+      ) : (
+        <div className="payments-table-container">
+          <table className="payments-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Method</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((payment) => (
+                <tr key={payment.id}>
+                  <td>{payment.id}</td>
+                  <td>{payment.customer_name}</td>
+                  <td>${payment.amount}</td>
+                  <td>{new Date(payment.payment_date).toLocaleDateString()}</td>
+                  <td>{payment.method}</td>
+                  <td>{payment.note || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
 </section>
 
       </main>

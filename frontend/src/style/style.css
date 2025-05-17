@@ -879,3 +879,61 @@ a {
 .amount-button:hover {
     background-color: #4f46e5;
 }
+
+
+/* payments section */
+.payments-section {
+  background-color: #3E065F;
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.payments-title {
+  font-size: 24px;
+  color: #00bfff;
+  margin-bottom: 1rem;
+}
+
+.payments-loading,
+.payments-error,
+.payments-empty {
+  font-size: 16px;
+  color: #ccc;
+}
+
+.payments-error {
+  color: #ff4d4d;
+}
+
+.payments-table-container {
+  overflow-x: auto;
+}
+
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #4a0b72;
+}
+
+.payments-table th,
+.payments-table td {
+  border: 1px solid #700B97;
+  padding: 10px;
+  text-align: left;
+  color: white;
+}
+
+.payments-table th {
+  background-color: #700B97;
+}
+
+.payments-table tr:nth-child(even) {
+  background-color: #5a0d80;
+}
+
+.payments-table tr:hover {
+  background-color: #8E05C2;
+}

@@ -132,6 +132,7 @@ const Home = () => {
           <div className="services-text">
             <h2>Services</h2>
             <p>We provide excellent services like OTT, Internet Service Provider, and Virtual Private Networks tailored to your personal and professional needs.</p>
+            <p>Contact us on 0916-965-0353</p>
           </div>
           <img src={lines} alt="" />
         </div>

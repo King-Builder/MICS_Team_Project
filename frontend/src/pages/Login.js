@@ -3,17 +3,25 @@ import React, { useState } from "react";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // For now just simulate redirect (in real app, handle auth)
-    window.location.href = "/add-customer"; 
+
+    if (email === "admin@gmail.com" && password === "admin") {
+      setError("");
+      window.location.href = "/add-customer"; // Proceed
+    } else {
+      setError("Invalid email or password");
+    }
   };
 
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <h2>Login to MICS</h2>
+
+        {error && <p className="login-error">{error}</p>}
 
         <label htmlFor="email">Email</label>
         <input

@@ -436,8 +436,6 @@ function handleSelectCustomer(customer) {
                 <th>Customer</th>
                 <th>Amount</th>
                 <th>Date</th>
-                <th>Method</th>
-                <th>Note</th>
               </tr>
             </thead>
             <tbody>
@@ -447,8 +445,6 @@ function handleSelectCustomer(customer) {
                   <td>{payment.customer_name}</td>
                   <td>${payment.amount}</td>
                   <td>{new Date(payment.payment_date).toLocaleDateString()}</td>
-                  <td>{payment.method}</td>
-                  <td>{payment.note || '-'}</td>
                 </tr>
               ))}
             </tbody>

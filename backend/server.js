@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import pool from './db.js'; // Your MySQL pool connection file
+import pool from './db.js'; // PostgreSQL pool connection
 
 dotenv.config();
 
@@ -13,18 +13,17 @@ app.use(express.json());
 // GET /customers - List all customers
 app.get('/customers', async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    const result = await pool.query(`
       SELECT c.id, c.name, c.email, c.phone, c.address, c.plan_id, p.name AS plan_name, c.status, c.balance
       FROM customers c
       LEFT JOIN plans p ON c.plan_id = p.id
       ORDER BY c.id ASC
     `);
-    res.json({ success: true, customers: rows });
+    res.json({ success: true, customers: result.rows });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 // POST /customers/add - Add new customer
 app.post('/customers/add', async (req, res) => {
@@ -33,11 +32,11 @@ app.post('/customers/add', async (req, res) => {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
   try {
-    const [result] = await pool.query(
-      'INSERT INTO customers (name, email, phone, address, plan_id) VALUES (?, ?, ?, ?, ?)',
+    const result = await pool.query(
+      'INSERT INTO customers (name, email, phone, address, plan_id) VALUES ($1, $2, $3, $4, $5) RETURNING id',
       [name, email, phone, address, plan_id]
     );
-    res.json({ success: true, message: 'Customer added', id: result.insertId });
+    res.json({ success: true, message: 'Customer added', id: result.rows[0].id });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -49,18 +48,17 @@ app.put('/customers/update/:id', async (req, res) => {
   const { phone, address, plan_id, status } = req.body;
 
   if (!phone || !address || !plan_id || !status) {
-    return res.status(400).json({ success: false, message: 'Phone, address, and plan are required' });
+    return res.status(400).json({ success: false, message: 'Phone, address, plan, and status are required' });
   }
 
   try {
-    // Check if customer exists
-    const [existing] = await pool.query('SELECT * FROM customers WHERE id = ?', [id]);
-    if (existing.length === 0) {
+    const existing = await pool.query('SELECT * FROM customers WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
 
     await pool.query(
-      'UPDATE customers SET phone = ?, address = ?, plan_id = ?, status = ? WHERE id = ?',
+      'UPDATE customers SET phone = $1, address = $2, plan_id = $3, status = $4 WHERE id = $5',
       [phone, address, plan_id, status, id]
     );
 
@@ -74,61 +72,58 @@ app.put('/customers/update/:id', async (req, res) => {
 app.delete('/customers/delete/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const [existing] = await pool.query('SELECT * FROM customers WHERE id = ?', [id]);
-    if (existing.length === 0) {
+    const existing = await pool.query('SELECT * FROM customers WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
 
-    await pool.query('DELETE FROM customers WHERE id = ?', [id]);
+    await pool.query('DELETE FROM customers WHERE id = $1', [id]);
     res.json({ success: true, message: 'Customer deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+// POST /customers/payment - Record a payment
 app.post('/customers/payment', async (req, res) => {
   const { customerId, amount } = req.body;
-    console.log('Received payment data:', req.body);
-
   if (!customerId || typeof amount !== 'number') {
-    return res.status(400).json({ success: false, message: "Invalid input" });
+    return res.status(400).json({ success: false, message: 'Invalid input' });
   }
 
-  const conn = await pool.getConnection(); // Get a dedicated connection
+  const client = await pool.connect();
   try {
-    await conn.beginTransaction();
+    await client.query('BEGIN');
 
-    await conn.query(
-      'UPDATE customers SET balance = balance - ? WHERE id = ?',
+    await client.query(
+      'UPDATE customers SET balance = balance - $1 WHERE id = $2',
       [amount, customerId]
     );
 
-    await conn.query(
-      `INSERT INTO payments (customer_id, amount, payment_date)
-       VALUES (?, ?, CURRENT_DATE)`,
+    await client.query(
+      'INSERT INTO payments (customer_id, amount, payment_date) VALUES ($1, $2, NOW())',
       [customerId, amount]
     );
 
-    await conn.commit(); // Commit only if both queries succeed
+    await client.query('COMMIT');
     res.json({ success: true });
   } catch (error) {
-    await conn.rollback(); // Revert changes if any error
-    console.error("Payment failed:", error);
-    res.status(500).json({ success: false, message: "Payment failed" });
+    await client.query('ROLLBACK');
+    console.error('Payment failed:', error);
+    res.status(500).json({ success: false, message: 'Payment failed' });
   } finally {
-    conn.release(); // Always release the connection
+    client.release();
   }
 });
 
-
-
+// POST /customers/monthly-billing - Add monthly billing amount to active customers
 app.post('/customers/monthly-billing', async (req, res) => {
   try {
     await pool.query(`
-      UPDATE customers c
-      JOIN plans p ON c.plan_id = p.id
-      SET c.balance = c.balance + p.price
-      WHERE c.status = 'active'
+      UPDATE customers
+      SET balance = balance + p.price
+      FROM plans p
+      WHERE customers.plan_id = p.id AND customers.status = 'active'
     `);
 
     res.json({ success: true });
@@ -137,9 +132,8 @@ app.post('/customers/monthly-billing', async (req, res) => {
   }
 });
 
-
+// Start server
 const PORT = process.env.PORT || 8000;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

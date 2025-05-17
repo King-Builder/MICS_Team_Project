@@ -255,6 +255,7 @@
             flex-direction: row;
             justify-content: space-around;
             padding: 15px 0;
+            height: 300px;
           }
           .sidebar h2 {
             display: none;

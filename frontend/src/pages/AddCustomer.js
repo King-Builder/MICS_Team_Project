@@ -244,6 +244,7 @@ function handleSelectCustomer(customer) {
         <nav>
           <a href="#add-customer">Add Customer</a>
           <a href="#customer-records">Customer Records</a>
+          <a href="#payment-form">Record Payment</a>
         </nav>
       </aside>
 

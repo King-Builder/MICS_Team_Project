@@ -21,7 +21,7 @@ const CustomerDashboard = () => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await fetch("http://localhost:8000/customers");
+      const res = await fetch("https://mics-backend.onrender.com/customers");
       const data = await res.json();
       if (data.success) {
         setCustomers(data.customers);
@@ -41,7 +41,7 @@ const CustomerDashboard = () => {
     e.preventDefault();
     setMessage(null);
     try {
-      const res = await fetch("http://localhost:8000/customers/add", {
+      const res = await fetch("https://mics-backend.onrender.com/customers/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -82,7 +82,7 @@ const CustomerDashboard = () => {
     e.preventDefault();
     setMessage(null);
     try {
-      const res = await fetch(`http://localhost:8000/customers/update/${updateId}`, {
+      const res = await fetch(`https://mics-backend.onrender.com/customers/update/${updateId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -104,7 +104,7 @@ const CustomerDashboard = () => {
     if (!window.confirm("Are you sure you want to delete this customer?")) return;
     setMessage(null);
     try {
-      const res = await fetch(`http://localhost:8000/customers/delete/${id}`, {
+      const res = await fetch(`https://mics-backend.onrender.com/customers/delete/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -140,7 +140,7 @@ const handlePaymentSubmit = async (e) => {
     amount: Number(paymentForm.amount),
   };
 
-  const res = await fetch('http://localhost:8000/customers/payment', {
+  const res = await fetch('https://mics-backend.onrender.com/customers/payment', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -161,7 +161,7 @@ const handlePaymentSubmit = async (e) => {
 const handleMonthlyBilling = async () => {
   if (!window.confirm("Apply monthly bills to all customers?")) return;
   try {
-    const res = await fetch("http://localhost:8000/customers/monthly-billing", {
+    const res = await fetch("https://mics-backend.onrender.com/customers/monthly-billing", {
       method: "POST",
     });
     const data = await res.json();

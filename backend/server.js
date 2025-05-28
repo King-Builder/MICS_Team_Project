@@ -10,11 +10,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// GET /customers - List all customers
+/**
+ * GET /customers - Fetch all customers with their plan info
+ */
 app.get('/customers', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT c.id, c.name, c.email, c.phone, c.address, c.plan_id, p.name AS plan_name, c.status, c.balance
+      SELECT 
+        c.id, c.name, c.email, c.phone, c.address, 
+        c.plan_id, p.name AS plan_name, 
+        c.status, c.balance
       FROM customers c
       LEFT JOIN plans p ON c.plan_id = p.id
       ORDER BY c.id ASC
@@ -25,7 +30,9 @@ app.get('/customers', async (req, res) => {
   }
 });
 
-// POST /customers/add - Add new customer
+/**
+ * POST /customers/add - Add a new customer
+ */
 app.post('/customers/add', async (req, res) => {
   const { name, email, phone, address, plan_id } = req.body;
   if (!name || !email || !phone || !address || !plan_id) {
@@ -33,7 +40,9 @@ app.post('/customers/add', async (req, res) => {
   }
   try {
     const result = await pool.query(
-      'INSERT INTO customers (name, email, phone, address, plan_id) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      `INSERT INTO customers (name, email, phone, address, plan_id)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id`,
       [name, email, phone, address, plan_id]
     );
     res.json({ success: true, message: 'Customer added', id: result.rows[0].id });
@@ -42,13 +51,15 @@ app.post('/customers/add', async (req, res) => {
   }
 });
 
-// PUT /customers/update/:id - Update customer by ID
+/**
+ * PUT /customers/update/:id - Update an existing customer's info
+ */
 app.put('/customers/update/:id', async (req, res) => {
   const { id } = req.params;
   const { phone, address, plan_id, status } = req.body;
 
   if (!phone || !address || !plan_id || !status) {
-    return res.status(400).json({ success: false, message: 'Phone, address, plan, and status are required' });
+    return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
   try {
@@ -58,7 +69,9 @@ app.put('/customers/update/:id', async (req, res) => {
     }
 
     await pool.query(
-      'UPDATE customers SET phone = $1, address = $2, plan_id = $3, status = $4 WHERE id = $5',
+      `UPDATE customers 
+       SET phone = $1, address = $2, plan_id = $3, status = $4 
+       WHERE id = $5`,
       [phone, address, plan_id, status, id]
     );
 
@@ -68,7 +81,9 @@ app.put('/customers/update/:id', async (req, res) => {
   }
 });
 
-// DELETE /customers/delete/:id - Delete customer by ID
+/**
+ * DELETE /customers/delete/:id - Delete a customer
+ */
 app.delete('/customers/delete/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -84,7 +99,10 @@ app.delete('/customers/delete/:id', async (req, res) => {
   }
 });
 
-// POST /customers/payment - Record a payment
+/**
+ * POST /customers/payment - Record a customer payment
+ * Relies on trigger to update balance
+ */
 app.post('/customers/payment', async (req, res) => {
   const { customerId, amount } = req.body;
   if (!customerId || typeof amount !== 'number') {
@@ -96,12 +114,8 @@ app.post('/customers/payment', async (req, res) => {
     await client.query('BEGIN');
 
     await client.query(
-      'UPDATE customers SET balance = balance - $1 WHERE id = $2',
-      [amount, customerId]
-    );
-
-    await client.query(
-      'INSERT INTO payments (customer_id, amount, payment_date) VALUES ($1, $2, NOW())',
+      `INSERT INTO payments (customer_id, amount, payment_date) 
+       VALUES ($1, $2, NOW())`,
       [customerId, amount]
     );
 
@@ -116,7 +130,9 @@ app.post('/customers/payment', async (req, res) => {
   }
 });
 
-// POST /customers/monthly-billing - Add monthly billing amount to active customers
+/**
+ * POST /customers/monthly-billing - Bill all active customers
+ */
 app.post('/customers/monthly-billing', async (req, res) => {
   try {
     await pool.query(`
@@ -125,13 +141,15 @@ app.post('/customers/monthly-billing', async (req, res) => {
       FROM plans p
       WHERE customers.plan_id = p.id AND customers.status = 'active'
     `);
-
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+/**
+ * GET /customers/payments - Fetch all payment records
+ */
 app.get('/customers/payments', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -155,7 +173,7 @@ app.get('/customers/payments', async (req, res) => {
   }
 });
 
-// Start server
+// Start the server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

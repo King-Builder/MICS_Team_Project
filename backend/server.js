@@ -39,17 +39,16 @@ app.post('/customers/add', async (req, res) => {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
   try {
-    const result = await pool.query(
-      `INSERT INTO customers (name, email, phone, address, plan_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id`,
+    await pool.query(
+      `CALL addcustomer($1, $2, $3, $4, $5)`,
       [name, email, phone, address, plan_id]
     );
-    res.json({ success: true, message: 'Customer added', id: result.rows[0].id });
+    res.json({ success: true, message: 'Customer added' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 /**
  * PUT /customers/update/:id - Update an existing customer's info

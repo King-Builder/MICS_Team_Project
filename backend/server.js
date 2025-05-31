@@ -15,15 +15,7 @@ app.use(express.json());
  */
 app.get('/customers', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT 
-        c.id, c.name, c.email, c.phone, c.address, 
-        c.plan_id, p.name AS plan_name, 
-        c.status, c.balance
-      FROM customers c
-      LEFT JOIN plans p ON c.plan_id = p.id
-      ORDER BY c.id ASC
-    `);
+    const result = await pool.query(`SELECT * FROM customers_with_plan`);
     res.json({ success: true, customers: result.rows });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
